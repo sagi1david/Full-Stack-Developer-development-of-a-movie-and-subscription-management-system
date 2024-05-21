@@ -1,0 +1,30 @@
+[
+  {
+    "id": "65db431e844a2ba933b94cb1",
+    "firstName": "administration",
+    "lastName": "administration",
+    "createdDate": "11.01.2024",
+    "sessionTimeOut": 60
+  },
+  {
+    "id": "65dcd1871efd24de77600bee",
+    "firstName": "Avi",
+    "lastName": "Cohen",
+    "createdDate": "26.02.2024",
+    "sessionTimeOut": 43
+  },
+  {
+    "id": "65dda3d08784e6157c63e0fa",
+    "firstName": "Sagi",
+    "lastName": "David",
+    "createdDate": "29.01.2024",
+    "sessionTimeOut": 30
+  },
+  {
+    "id": "65dda47154623800f71060a7",
+    "firstName": "Yarin",
+    "lastName": "David",
+    "createdDate": "19.02.2024",
+    "sessionTimeOut": 60
+  }
+]
