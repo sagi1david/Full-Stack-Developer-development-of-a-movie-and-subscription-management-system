@@ -21,7 +21,7 @@ function Login() {
     });
 
     const data = await resp.json();
-console.log(data.user)
+    console.log(data.user)
     dispatch({ type: "User_Online", payload: data.user });
     sessionStorage["accessToken"] = data.accessToken;
     navigator("/main");

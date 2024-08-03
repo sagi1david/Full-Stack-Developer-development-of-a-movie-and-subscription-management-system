@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 const urlMovies = "http://localhost:4000/movies";
 
-function movies() {
+function movies(props) {
   const dispatch = useDispatch();
   const userOnline = useSelector((state) => state.userOnline);
 
@@ -20,13 +20,15 @@ function movies() {
 
   useEffect(() => {
     const fetchData = async () => {
-      userOnline.permissions.forEach((permission) => {
-        if (permission === "Create Movies") setVisibleAddMovieButton(false);
-        if (permission === "View Movies") setVisibleAllMoviesButton(false);
-      });
+      if (userOnline != 'undefined') {
+        userOnline.permissions.forEach((permission) => {
+          if (permission === "Create Movies") setVisibleAddMovieButton(false);
+          if (permission === "View Movies") setVisibleAllMoviesButton(false);
+        });
+      }
     };
     fetchData();
-  }, []);
+  }, [userOnline]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,8 +40,6 @@ function movies() {
       });
 
       const data = await resp.json();
-
-      console.log(data);
 
       dispatch({ type: "Laod_Movies", payload: data.movies });
     };

@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 const urlMembers = "http://localhost:4000/members";
 
-function movies() {
+function Subscriptions() {
   const userOnline = useSelector((state) => state.userOnline);
 
   const [visibleAddMemberButton, setVisibleAddMemberButton] = useState(true);
@@ -21,17 +21,19 @@ function movies() {
 
   useEffect(() => {
     const fetchData = async () => {
-      userOnline.permissions.forEach((permission) => {
-        if (permission === "Create Subscriptions")
-          setVisibleAddMemberButton(false);
-        if (permission === "View Subscriptions")
-          setVisibleAllMembersButton(false);
-      });
+      if (userOnline != 'undefined') {
+        userOnline.permissions.forEach((permission) => {
+          if (permission === "Create Subscriptions")
+            setVisibleAddMemberButton(false);
+          if (permission === "View Subscriptions")
+            setVisibleAllMembersButton(false);
+        });
+      }
 
       const resp = await fetch(urlMembers, {
         method: "GET",
         headers: {
-          "x-access-token": accessToken,
+          "access-token": accessToken,
         },
       });
 
@@ -92,4 +94,4 @@ function movies() {
   );
 }
 
-export default movies;
+export default Subscriptions;

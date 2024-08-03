@@ -6,11 +6,12 @@ const subscriptionsBLL = require("../DAL/subscriptionsWS");
 
 const router = express.Router();
 
-router.get("/", checkToken, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const subscriptions = await subscriptionsBLL.getAllSubscriptions();
     const data = { ...req.body.data, subscriptions };
-    return res.json(subscriptions);
+    console.log(data)
+    return res.json(data);
   } catch (error) {
     return res.status(500).send(error);
   }
@@ -27,10 +28,11 @@ router.get("/:id", checkToken, (req, res) => {
   }
 });
 
-router.post("/", checkToken, (req, res) => {
+router.post("/", (req, res) => {
   try {
-    const obj = req.body.data.obj;
-    const result = subscriptionsBLL.addSubscription(obj);
+    const subscription = req.body;
+    console.log(subscription)
+    const result = subscriptionsBLL.addSubscription(subscription);
     const data = { ...req.body.data, result };
     return res.status(201).send(data);
   } catch (error) {
@@ -62,7 +64,7 @@ router.delete("/:id", checkToken, (req, res) => {
 });
 
 function checkToken(req, res, next) {
-  const token = req.headers["x-access-token"];
+  const token = req.headers["access-token"];
 
   if (!token) {
     return res.status(400).json({ msg: "No token provided" });

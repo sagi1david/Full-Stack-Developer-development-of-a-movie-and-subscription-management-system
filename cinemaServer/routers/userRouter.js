@@ -5,7 +5,7 @@ const userBLL = require("../BLL/userBLL");
 
 const router = express.Router();
 
-router.get("/", checkToken, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const users = await userBLL.getAllUsersData();
     const data = { ...req.body.data, users };

@@ -3,8 +3,9 @@ const axios = require("axios");
 const urlSubscriptions = "http://localhost:3000/subscriptions";
 
 // Get All
-const getAllSubscriptions = () => {
-  return axios.get(urlSubscriptions);
+const getAllSubscriptions = async () => {
+  const {data: subscriptions} = await axios.get(urlSubscriptions);
+  return subscriptions;
 };
 
 // Get By ID

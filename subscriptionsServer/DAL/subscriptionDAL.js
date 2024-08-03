@@ -1,8 +1,8 @@
 const Subscription = require("../models/subscriptionsModel");
 
 // Get All
-const getAllSubscriptions = (filters) => {
-  return Subscription.find(filters);
+const getAllSubscriptions = () => {
+  return Subscription.find();
 };
 
 // Get By ID

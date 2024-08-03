@@ -1,54 +1,54 @@
 const express = require("express");
-const subscriptionsDAL = require("../DAL/membersWS");
+const subscriptionsDAL = require("../DAL/subscriptionDAL");
 
 // Entry point: http://localhost:3000/subscriptions
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const subscriptions = subscriptionsDAL.getAllMembers();
+    const subscriptions = await subscriptionsDAL.getAllSubscriptions();
     return res.json(subscriptions);
   } catch (error) {
     return res.status(500).send(error);
   }
 });
 
-router.get("/:id", (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const subscription = subscriptionsDAL.getSubscriptionById(id);
+    const subscription = await subscriptionsDAL.getSubscriptionById(id);
     return res.status(200).json(subscription);
   } catch (error) {
     return res.status(500).send(error);
   }
 });
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   try {
-    const obj = req.body.data.obj;
-    const result = subscriptionsDAL.addSubscription(obj);
+    const subscription = req.body;
+    const result = await subscriptionsDAL.addSubscription(subscription);
     return res.status(201).send(result);
   } catch (error) {
     return res.status(500).send(error);
   }
 });
 
-router.put("/:id", (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const obj = req.body.data.obj;
-    const result = subscriptionsDAL.updateSubscription(id, obj);
+    const subscription = req.body;
+    const result = await subscriptionsDAL.updateSubscription(id, subscription);
     return res.send(result);
   } catch (error) {
     return res.status(500).send(error);
   }
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const result = subscriptionsDAL.deleteSubscription(id);
+    const result = await subscriptionsDAL.deleteSubscription(id);
     return res.send(result);
   } catch (error) {
     return res.status(500).send(error);

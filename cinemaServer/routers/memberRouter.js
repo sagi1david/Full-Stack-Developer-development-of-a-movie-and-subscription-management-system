@@ -6,7 +6,7 @@ const memberBLL = require("../DAL/membersWS");
 
 const router = express.Router();
 
-router.get("/", checkToken, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const members = await memberBLL.getAllMembers();
     const data = { ...req.body.data, members };
@@ -63,7 +63,7 @@ router.delete("/:id", checkToken, (req, res) => {
 
 function checkToken(req, res, next) {
   const token = req.headers["x-access-token"];
-
+  console.log(req.headers)
   if (!token) {
     return res.status(400).json({ msg: "No token provided" });
   }

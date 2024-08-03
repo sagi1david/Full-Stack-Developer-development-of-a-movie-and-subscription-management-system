@@ -6,11 +6,10 @@ const movieBLL = require("../DAL/moviesWS");
 
 const router = express.Router();
 
-router.get("/", checkToken, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const movies = await movieBLL.getAllMovies();
     const data = { ...req.body.data, movies };
-    console.log(data)
     return res.status(200).send(data);
   } catch (error) {
     return res.status(500).send(error);
@@ -63,8 +62,8 @@ router.delete("/:id", checkToken, (req, res) => {
 });
 
 function checkToken(req, res, next) {
-  const token = req.headers["x-access-token"];
-  console.log(token)
+  const token = req.headers["access-token"];
+  console.log(req.headers)
 
   if (!token) {
     return res.status(400).json({ msg: "No token provided" });

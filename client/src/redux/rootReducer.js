@@ -40,7 +40,6 @@ const Reducer = (state = initialState, action) => {
     }
 
     case "User_Online": {
-      console.log(action.payload)
       return { ...state, userOnline: action.payload };
     }
 

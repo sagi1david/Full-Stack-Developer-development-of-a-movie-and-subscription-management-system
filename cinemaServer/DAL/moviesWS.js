@@ -5,7 +5,7 @@ const urlMovies = "http://localhost:3000/movies";
 // Get All
 const getAllMovies =  async () => {
   const {data: movies} = await axios.get(urlMovies);
-  return  movies;
+  return movies;
 };
 
 // Get By ID

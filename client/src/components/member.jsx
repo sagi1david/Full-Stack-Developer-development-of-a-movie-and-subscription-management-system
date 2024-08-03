@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const urlSubscriptions = "http://localhost:4000/subscriptions";
+const urlMembers = "http://localhost:4000/members";
 
 function Member(props) {
   const dispatch = useDispatch();
@@ -15,6 +16,11 @@ function Member(props) {
   const [visibleEditMemberButton, setVisibleEditMemberButton] = useState(true);
   const [visibleMoviesWatched, setVisibleMoviesWatched] = useState(true);
   const [moviesDontWatched, setMoviesDontWatched] = useState([]);
+  const [subscriptions, setSubscriptions] = useState();
+  const [subscription, setSubscription] = useState({
+    memberId: props.member._id,
+    movies: [{ movieId: "", date: "" }]
+  });
 
 
   useEffect(() => {
@@ -25,33 +31,21 @@ function Member(props) {
         if (permission === "Update Subscriptions")
           setVisibleEditMemberButton(false);
       });
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
       const resp = await fetch(urlSubscriptions, {
         method: "GET",
         headers: {
-          "x-access-token": accessToken,
+          "access-token": accessToken,
         },
       });
 
       const data = await resp.json();
-
-movies.map(movie => {
-  data.subscriptions.find(subscription => movie.)
-})
-      
-
+      setSubscriptions(data.subscriptions);
       dispatch({ type: "Laod_Subscriptions", payload: data.subscriptions });
     };
     fetchData();
-  }, [visibleDeleteMemberButton]);
+  }, []);
 
   const deleteMember = async () => {
-    const urlMembers = "http://localhost:4000/members";
 
     props.setVisibleAllMembers(true);
 
@@ -61,6 +55,17 @@ movies.map(movie => {
 
     props.setVisibleAllMembers(false);
   };
+
+  const addSubscribe = async () => {
+
+    const resp = await fetch(urlSubscriptions, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(subscription),
+    });
+  }
 
   return (
     <div>
@@ -87,14 +92,20 @@ movies.map(movie => {
         Subscribe to new movie
       </button>
       <div hidden={visibleMoviesWatched}>
-        <h3>Add a new movie</h3>
-        <select></select>
-        <option></option>
-        <input type="date"></input>
-        <button>Subscribe</button>
+        <h4>Add a new movie</h4>
+        <select onChange={(e) => setSubscription({ ...subscription, movieId: e.target.value })}>
+          {movies.map((movie) => (
+            <option key={movie._id} value={movie.id}>
+              {movie.name}
+            </option>
+          ))}
+        </select>
+        <input type="date" onChange={(e) => setSubscription({ ...subscription, date: e.target.value })}></input>
+        <br />
+        <button onClick={addSubscribe}>Subscribe</button>
       </div>
+
       <ul>
-        <li></li>
       </ul>
     </div>
   );

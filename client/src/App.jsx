@@ -1,4 +1,6 @@
-import { Routes, Route } from "react-router-dom";
+import { Theme } from "@radix-ui/themes";
+import "@radix-ui/themes/styles.css";
+import { Route, Routes } from "react-router-dom";
 import AddMember from "./components/addMember";
 import AddMovie from "./components/addMovie";
 import AddUser from "./components/addUser";
@@ -20,27 +22,29 @@ import Subscriptions from "./components/subscriptions";
 const App = () => {
   return (
     <>
-      <h1>Movies - Subscriptions Web Site</h1>
+      <Theme>
+        <h1>Movies - Subscriptions Web Site</h1>
 
-      <Routes>
-        <Route path="/addMember" element={<AddMember />} />
-        <Route path="/addMovie" element={<AddMovie />} />
-        <Route path="/addUser" element={<AddUser />} />
-        <Route path="/allMembers" element={<AllMembers />} />
-        <Route path="/allMovies" element={<AllMovies />} />
-        <Route path="/allUsers" element={<AllUsers />} />
-        <Route path="/createAccount" element={<CreateAccount />} />
-        <Route path="/editMember" element={<EditMember />} />
-        <Route path="/editMovie" element={<EditMovie />} />
-        <Route path="/editUser" element={<EditUser />} />
-        <Route path="/" element={<Login />} />
-        <Route path="/main" element={<Main />} />
-        <Route path="/manageUsers" element={<ManageUsers />} />
-        <Route path="/member" element={<Member />} />
-        <Route path="/movie" element={<Movie />} />
-        <Route path="/movies" element={<Movies />} />
-        <Route path="/subscriptions" element={<Subscriptions />} />
-      </Routes>
+        <Routes>
+          <Route path="/addMember" element={<AddMember />} />
+          <Route path="/addMovie" element={<AddMovie />} />
+          <Route path="/addUser" element={<AddUser />} />
+          <Route path="/allMembers" element={<AllMembers />} />
+          <Route path="/allMovies" element={<AllMovies />} />
+          <Route path="/allUsers" element={<AllUsers />} />
+          <Route path="/createAccount" element={<CreateAccount />} />
+          <Route path="/editMember" element={<EditMember />} />
+          <Route path="/editMovie" element={<EditMovie />} />
+          <Route path="/editUser" element={<EditUser />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/main" element={<Main />} />
+          <Route path="/manageUsers" element={<ManageUsers />} />
+          <Route path="/member" element={<Member />} />
+          <Route path="/movie" element={<Movie />} />
+          <Route path="/movies" element={<Movies />} />
+          <Route path="/subscriptions" element={<Subscriptions />} />
+        </Routes>
+      </Theme>
     </>
   );
 };

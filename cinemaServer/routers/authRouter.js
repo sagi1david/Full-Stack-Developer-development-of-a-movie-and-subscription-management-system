@@ -37,7 +37,7 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/create", async (req, res) => {
-  const users = await usersDAL.getAllUsers();
+  const users = await userDAL.getAllUsers();
 
   const userByUserName = users.find(
     (user) => user.userName === req.body.username
