@@ -1,3 +1,4 @@
+import { Box, Button, Card, Flex, Text, TextField } from "@radix-ui/themes";
 import { useState } from "react";
 
 function addMovie(props) {
@@ -20,43 +21,48 @@ function addMovie(props) {
 
     props.setVisibleAddMember(!props.visibleAddMember);
     props.setVisibleAllMembers(!props.visibleAllMembers);
-
   };
 
   return (
-    <div>
+    <>
       <h3>Add new Member</h3>
-      Name:
-      <input
-        type="text"
-        onInput={(e) => setMember({ ...member, name: e.target.value })}
-        placeholder="Name"
-      />
-      <br />
-      Email:
-      <input
-        type="text"
-        onInput={(e) => setMember({ ...member, email: e.target.value })}
-        placeholder="Email"
-      />
-      <br />
-      City:
-      <input
-        type="text"
-        onInput={(e) => setMember({ ...member, city: e.target.value })}
-        placeholder="City"
-      />
-      <br />
-      <button type="submit" onClick={addMember}>
-        Save
-      </button>
-      <button
-        type="submit"
-        onClick={() => props.setVisibleAddMember(!props.visibleAddMember)}
-      >
-        Cancel
-      </button>
-    </div>
+      <Box maxWidth="350px">
+        <Card>
+          <Text size="3">
+            <b>Name: </b>
+            <TextField.Root placeholder="Name">
+              <TextField.Slot
+                onInput={(e) => setMember({ ...member, name: e.target.value })}
+              ></TextField.Slot>
+            </TextField.Root>
+            <b>Email: </b>
+            <TextField.Root placeholder="Email">
+              <TextField.Slot
+                onInput={(e) => setMember({ ...member, email: e.target.value })}
+              ></TextField.Slot>
+            </TextField.Root>
+            <b>City: </b>
+            <TextField.Root placeholder="City">
+              <TextField.Slot
+                onInput={(e) => setMember({ ...member, city: e.target.value })}
+              ></TextField.Slot>
+            </TextField.Root>
+          </Text>
+          <br />
+          <Flex gap="1">
+            <Button type="submit" onClick={addMember}>
+              Save
+            </Button>
+            <Button
+              type="submit"
+              onClick={() => props.setVisibleAddMember(!props.visibleAddMember)}
+            >
+              Cancel
+            </Button>
+          </Flex>
+        </Card>
+      </Box>
+    </>
   );
 }
 

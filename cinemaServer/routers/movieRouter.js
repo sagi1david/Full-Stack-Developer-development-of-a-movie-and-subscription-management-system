@@ -1,12 +1,12 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const movieBLL = require("../DAL/moviesWS");
+const movieBLL = require("../BLL/movieBLL");
 
 // Entry point: http://localhost:4000/movies
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", checkToken, async (req, res) => {
   try {
     const movies = await movieBLL.getAllMovies();
     const data = { ...req.body.data, movies };
@@ -62,8 +62,7 @@ router.delete("/:id", checkToken, (req, res) => {
 });
 
 function checkToken(req, res, next) {
-  const token = req.headers["access-token"];
-  console.log(req.headers)
+  const token = req.headers["x-access-token"];
 
   if (!token) {
     return res.status(400).json({ msg: "No token provided" });

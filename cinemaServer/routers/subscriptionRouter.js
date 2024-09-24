@@ -6,21 +6,20 @@ const subscriptionsBLL = require("../DAL/subscriptionsWS");
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", checkToken, async (req, res) => {
   try {
     const subscriptions = await subscriptionsBLL.getAllSubscriptions();
     const data = { ...req.body.data, subscriptions };
-    console.log(data)
-    return res.json(data);
+    return res.status(200).json(data);
   } catch (error) {
     return res.status(500).send(error);
   }
 });
 
-router.get("/:id", checkToken, (req, res) => {
+router.get("/:id", checkToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const subscription = subscriptionsBLL.getSubscriptionById(id);
+    const subscription = await subscriptionsBLL.getSubscriptionById(id);
     const data = { ...req.body.data, subscription };
     return res.status(200).json(data);
   } catch (error) {
@@ -28,10 +27,9 @@ router.get("/:id", checkToken, (req, res) => {
   }
 });
 
-router.post("/", (req, res) => {
+router.post("/", checkToken, (req, res) => {
   try {
     const subscription = req.body;
-    console.log(subscription)
     const result = subscriptionsBLL.addSubscription(subscription);
     const data = { ...req.body.data, result };
     return res.status(201).send(data);
@@ -43,19 +41,8 @@ router.post("/", (req, res) => {
 router.put("/:id", checkToken, (req, res) => {
   try {
     const { id } = req.params;
-    const obj = req.body.data.obj;
-    const result = subscriptionsBLL.updateSubscription(id, obj);
-    const data = { ...req.body.data, result };
-    return res.send(data);
-  } catch (error) {
-    return res.status(500).send(error);
-  }
-});
-
-router.delete("/:id", checkToken, (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = subscriptionsBLL.deleteSubscription(id);
+    const subscription = req.body;
+    const result = subscriptionsBLL.updateSubscription(id, subscription);
     const data = { ...req.body.data, result };
     return res.send(data);
   } catch (error) {
@@ -64,7 +51,7 @@ router.delete("/:id", checkToken, (req, res) => {
 });
 
 function checkToken(req, res, next) {
-  const token = req.headers["access-token"];
+  const token = req.headers["x-access-token"];
 
   if (!token) {
     return res.status(400).json({ msg: "No token provided" });

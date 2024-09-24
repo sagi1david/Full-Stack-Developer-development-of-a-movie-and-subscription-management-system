@@ -10,7 +10,7 @@ const getAllUsersData = async () => {
 
   const allUsersData = [];
 
-  users.splice(1).map((user) => {
+  users.map((user) => {
     const userData = usersData.find((userData) => userData.id === user.id);
 
     const userPermissions = usersPermissions.find(
@@ -29,7 +29,6 @@ const getAllUsersData = async () => {
 
     allUsersData.push(allUserData);
   });
-
   return allUsersData;
 };
 
@@ -61,7 +60,7 @@ const getAllUserDataById = async (id) => {
 //Create a new user
 const createNewUser = async (obj) => {
   const date = new Date().toLocaleDateString();
-  const user = { id: obj.id, userName: obj.userName };
+  const user = { userName: obj.userName };
 
   const userId = await userDAL.addUser(user);
 
@@ -89,7 +88,7 @@ const createNewUser = async (obj) => {
 //Update a user
 const updateUser = async (id, obj) => {
   const user = { id: id, userName: obj.userName };
-
+console.log(user)
   await userDAL.updateUser(id, user);
 
   const userData = {
@@ -100,7 +99,6 @@ const updateUser = async (id, obj) => {
     sessionTimeOut: obj.sessionTimeOut,
   };
   const userPermissions = { id: id, permissions: obj.permissions };
-
   const usersData = await userFile.getUsers();
   const usersPermissions = await permissionsFile.getPermissions();
 
@@ -110,25 +108,11 @@ const updateUser = async (id, obj) => {
     (userPermissions) => userPermissions.id === id
   );
 
-  const arrayUsersData = usersData.slice(0, indexUserData);
-  arrayUsersData.push(userData);
+  usersData.splice(indexUserData, 1, userData);
+  usersPermissions.splice(indexUserPermissions, 1, userPermissions);
 
-  if (usersData.length > indexUserData + 1)
-    arrayUsersData.push(usersData.slice(indexUserData + 1));
-
-  const arrayUsersPermissions = usersPermissions.slice(0, indexUserPermissions);
-  arrayUsersPermissions.push(userPermissions);
-
-  if (usersPermissions.length > indexUserPermissions + 1)
-    arrayUsersPermissions.push(
-      usersPermissions.slice(indexUserPermissions + 1)
-    );
-
-    console.log(arrayUsersData)
-    console.log(arrayUsersPermissions)
-
-  //userFile.setUsers(arrayUsersData);
-  //permissionsFile.setPermissions(arrayUsersPermissions);
+  userFile.setUsers(usersData);
+  permissionsFile.setPermissions(usersPermissions);
 
   return "Updated!";
 };
@@ -146,20 +130,11 @@ const deleteUser = async (id) => {
     (userPermissions) => userPermissions.id === id
   );
 
-  const arrayUsersData = usersData.slice(0, indexUserData);
+  usersData.splice(indexUserData, 1);
+  usersPermissions.splice(indexUserPermissions, 1);
 
-  if (usersData.length > indexUserData + 1)
-    arrayUsersData.push(usersData.slice(indexUserData + 1));
-
-  const arrayUsersPermissions = usersPermissions.slice(0, indexUserPermissions);
-
-  if (usersPermissions.length > indexUserPermissions + 1)
-    arrayUsersPermissions.push(
-      usersPermissions.slice(indexUserPermissions + 1)
-    );
-
-  userFile.setUsers(arrayUsersData);
-  permissionsFile.setPermissions(arrayUsersPermissions);
+  userFile.setUsers(usersData);
+  permissionsFile.setPermissions(usersPermissions);
 
   return "Deleted!";
 };

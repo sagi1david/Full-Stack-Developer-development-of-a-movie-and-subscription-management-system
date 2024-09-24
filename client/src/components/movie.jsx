@@ -1,78 +1,109 @@
-import { Box, Button, Card, Flex, Text } from "@radix-ui/themes";
+import { Box, Button, Card, Flex, Link, Text } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const urlMovies = "http://localhost:4000/movies";
+const userId = localStorage.getItem("userOnline");
+const accessToken = sessionStorage["accessToken"];
 
 function Movie(props) {
-  const dispatch = useDispatch();
-  const userOnline = useSelector((state) => state.userOnline);
+  const navigate = useNavigate();
 
   const [visibleDeleteMovieButton, setVisibleDeleteMovieButton] =
     useState(true);
   const [visibleEditMovieButton, setVisibleEditMovieButton] = useState(true);
 
+  const users = useSelector((state) => state.users);
+  const subscriptions = useSelector((state) => state.subscriptions);
+  const members = useSelector((state) => state.members);
+
+  const userOnline = users.find((user) => {
+    return user.id === userId;
+  });
+
   useEffect(() => {
     const fetchData = async () => {
-      userOnline.permissions.forEach((permission) => {
-        if (permission === "Delete Movies") setVisibleDeleteMovieButton(false);
-        if (permission === "Update Movies") setVisibleEditMovieButton(false);
+      userOnline?.permissions.forEach((permission) => {
+        if (permission === "Delete Movies") setVisibleDeleteMovieButton(true);
+        if (permission === "Update Movies") setVisibleEditMovieButton(true);
       });
     };
     fetchData();
   }, []);
 
   const deleteMovie = async () => {
-    props.setVisibleAllMovies(true);
-
     const resp = await fetch(`${urlMovies}/${props.movie._id}`, {
       method: "DELETE",
+      headers: {
+        "x-access-token": accessToken,
+      },
     });
-
-    props.setVisibleAllMovies(false);
   };
 
   return (
-    <>
-      <Box maxWidth="350px" mb="2">
-        <Card>
-          <Flex gap="3" align="center">
-            <img
-              src={props.movie.image}
-              style={{
-                width: "100px",
-                height: "120px",
-              }}
-            />
-            <Box>
-              <Text as="div" size="2" weight="bold">
-                {props.movie.name} ,{props.movie.premiered.substring(0, 4)}{" "}
-              </Text>
-              <Text as="div" size="2" color="gray">
-                Genres: <br />
-                {props.movie.genres.map((genre) => {
-                  return genre + ",";
-                })}
-              </Text>
-              <Flex gap="1">
+    <Box>
+      <Card key={props.movie._id}>
+        <Flex gap="3">
+          <img
+            src={props.movie.image}
+            style={{
+              width: "100px",
+              height: "120px",
+            }}
+          />
+          <Flex direction="column" gap="2">
+            <Text as="div" size="2" weight="bold">
+              {props.movie.name}, {props.movie.premiered.substring(0, 4)}
+            </Text>
+            <Text as="div" size="2" color="gray">
+              Genres: <br />
+              {props.movie.genres.join(", ")}
+            </Text>
+            <Text>
+              Subscriptions watched
+              <ul>
+                {subscriptions.map((subscription) =>
+                  subscription.movies.map((movie) => {
+                    if (movie.movieId === props.movie._id) {
+                      const member = members.find((member) => {
+                        return member._id === subscription.memberId;
+                      });
+                      return (
+                        <li key={movie._id}>
+                          <a href={`/subscriptions/${subscription.memberId}`}>
+                            {member?.name}
+                          </a>
+                          , {movie.date}
+                        </li>
+                      );
+                    }
+
+                    return null;
+                  })
+                )}
+              </ul>
+            </Text>
+            <Flex gap="1">
+              {visibleEditMovieButton && (
                 <Button
-                  hidden={visibleEditMovieButton}
                   onClick={() => {
-                    props.setVisibleEditMovie(!props.visibleEditMovie);
-                    dispatch({ type: "Send_Movie", payload: props.movie });
+                    navigate(`/editMovie/${props.movie._id}`);
                   }}
                 >
                   Edit
                 </Button>
-                <Button hidden={visibleDeleteMovieButton} onClick={deleteMovie}>
+              )}
+              {visibleDeleteMovieButton && (
+                <Button color="red" onClick={deleteMovie}>
                   Delete
                 </Button>
-              </Flex>
-            </Box>
+              )}
+            </Flex>
           </Flex>
-        </Card>
-      </Box>
-    </>
+        </Flex>
+      </Card>
+    </Box>
   );
 }
 

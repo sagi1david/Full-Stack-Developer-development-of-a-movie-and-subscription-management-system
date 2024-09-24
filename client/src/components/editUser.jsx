@@ -1,10 +1,35 @@
+import {
+  Box,
+  Button,
+  Card,
+  CheckboxGroup,
+  Flex,
+  Text,
+  TextField,
+} from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 
-function editUser(props) {
-  const userState = useSelector((state) => state.user);
+const urlUsers = "http://localhost:4000/users";
 
-  const [user, setUser] = useState({});
+function editUser() {
+  const navigate = useNavigate();
+  const users = useSelector((state) => state.users);
+  const userId = useParams();
+
+  const temp = users.find((user) => {
+    return user.id === userId.userId;
+  });
+
+  const [user, setUser] = useState({
+    firstName: temp.firstName,
+    lastName: temp.lastName,
+    userName: temp.userName,
+    createdDate: temp.createdDate,
+    sessionTimeOut: temp.sessionTimeOut,
+    permissions: temp.permissions,
+  });
 
   const [viewSubscriptions, setViewSubscriptions] = useState(false);
   const [createSubscriptions, setCreateSubscriptions] = useState(false);
@@ -17,8 +42,6 @@ function editUser(props) {
 
   useEffect(() => {
     const fetchData = async () => {
-      setUser({});
-
       setViewSubscriptions(false);
       setCreateSubscriptions(false);
       setDeleteSubscriptions(false);
@@ -28,47 +51,113 @@ function editUser(props) {
       setDeleteMovies(false);
       setUpdateMovies(false);
 
-      if (userState.id !== undefined) {
-        setUser({
-          id: userState.id,
-          firstName: userState.firstName,
-          lastName: userState.lastName,
-          userName: userState.userName,
-          createdDate: userState.createdDate,
-          sessionTimeOut: userState.sessionTimeOut,
-          permissions: userState.permissions,
-        });
+      await user.permissions.map((permission) => {
+        if (permission === "View Subscriptions") setViewSubscriptions(true);
 
-        await userState.permissions.map((permission) => {
-          if (permission === "View Subscriptions")
-            setViewSubscriptions(!viewSubscriptions);
+        if (permission === "Create Subscriptions") setCreateSubscriptions(true);
 
-          if (permission === "Create Subscriptions")
-            setCreateSubscriptions(!createSubscriptions);
+        if (permission === "Delete Subscriptions") setDeleteSubscriptions(true);
 
-          if (permission === "Delete Subscriptions")
-            setDeleteSubscriptions(!deleteSubscriptions);
+        if (permission === "Update Subscriptions") setUpdateSubscriptions(true);
 
-          if (permission === "Update Subscriptions")
-            setUpdateSubscriptions(!updateSubscriptions);
+        if (permission === "View Movies") setViewMovies(true);
 
-          if (permission === "View Movies") setViewMovies(!viewMovies);
+        if (permission === "Create Movies") setCreateMovies(true);
 
-          if (permission === "Create Movies") setCreateMovies(!createMovies);
+        if (permission === "Delete Movies") setDeleteMovies(true);
 
-          if (permission === "Delete Movies") setDeleteMovies(!deleteMovies);
-
-          if (permission === "Update Movies") setUpdateMovies(!updateMovies);
-        });
-      }
+        if (permission === "Update Movies") setUpdateMovies(true);
+      });
     };
+
     fetchData();
-  }, [userState]);
+  }, []);
 
   const update = async () => {
-    const urlUsers = "http://localhost:4000/users";
+    const permissions = [];
 
-    const resp = await fetch(`${urlUsers}/${user.id}`, {
+    if (
+      viewSubscriptions &&
+      !createSubscriptions &&
+      !deleteSubscriptions &&
+      !updateSubscriptions
+    )
+      permissions.push("View Subscriptions");
+
+    if (createSubscriptions)
+      if (
+        permissions.find(
+          (permission) => permission === "View Subscriptions"
+        ) !== "View Subscriptions"
+      ) {
+        permissions.push("View Subscriptions");
+        setViewSubscriptions(!viewSubscriptions);
+      }
+    permissions.push("Create Subscriptions");
+
+    if (deleteSubscriptions) {
+      if (
+        permissions.find(
+          (permission) => permission === "View Subscriptions"
+        ) !== "View Subscriptions"
+      ) {
+        permissions.push("View Subscriptions");
+        setViewSubscriptions(!viewSubscriptions);
+      }
+      permissions.push("Delete Subscriptions");
+    }
+
+    if (updateSubscriptions) {
+      if (
+        permissions.find(
+          (permission) => permission === "View Subscriptions"
+        ) !== "View Subscriptions"
+      ) {
+        permissions.push("View Subscriptions");
+        setViewSubscriptions(!viewSubscriptions);
+      }
+      permissions.push("Update Subscriptions");
+    }
+
+    if (viewMovies && !createMovies && !deleteMovies && !updateMovies)
+      permissions.push("View Movies");
+
+    if (createMovies) {
+      if (
+        permissions.find((permission) => permission === "View Movies") !==
+        "View Movies"
+      ) {
+        permissions.push("View Movies");
+        setViewMovies(!viewMovies);
+      }
+      permissions.push("Create Movies");
+    }
+
+    if (deleteMovies) {
+      if (
+        permissions.find((permission) => permission === "View Movies") !==
+        "View Movies"
+      ) {
+        permissions.push("View Movies");
+        setViewMovies(!viewMovies);
+      }
+      permissions.push("Delete Movies");
+    }
+
+    if (updateMovies) {
+      if (
+        permissions.find((permission) => permission === "View Movies") !==
+        "View Movies"
+      ) {
+        permissions.push("View Movies");
+        setViewMovies(!viewMovies);
+      }
+      permissions.push("Update Movies");
+    }
+
+    setUser((user.permissions = permissions));
+
+    const resp = await fetch(`${urlUsers}/${userId.userId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -76,113 +165,117 @@ function editUser(props) {
       body: JSON.stringify(user),
     });
 
-    props.setVisibleEditUser(!props.visibleEditUser);
+    window.location.href = "http://localhost:5173/manageUsers";
   };
 
   return (
-    <div>
+    <>
       <h3>
-        Edit User: {userState.firstName} {userState.lastName}
+        Edit User: {user.firstName} {user.lastName}
       </h3>
-      First Name:
-      <input
-        type="text"
-        onInput={(e) => setUser({ ...user, firstName: e.target.value })}
-        defaultValue={userState.firstName}
-      />
-      <br />
-      Last Name:
-      <input
-        type="text"
-        onInput={(e) => setUser({ ...user, lastName: e.target.value })}
-        defaultValue={userState.lastName}
-      />
-      <br />
-      User Name:
-      <input
-        type="text"
-        onInput={(e) => setUser({ ...user, userName: e.target.value })}
-        defaultValue={userState.userName}
-      />
-      <br />
-      Session Time Out (Minutes):
-      <input
-        type="number"
-        onInput={(e) => setUser({ ...user, sessionTimeOut: e.target.value })}
-        defaultValue={userState.sessionTimeOut}
-      />
-      <br />
-      Created data: {userState.createdDate}
-      <br />
-      Permissions:
-      <br />
-      <input
-        type="checkbox"
-        checked={viewSubscriptions}
-        onChange={() => setViewSubscriptions(!viewSubscriptions)}
-      />
-      <label for="View Subscriptions"> View Subscriptions</label>
-      <br />
-      <input
-        type="checkbox"
-        checked={createSubscriptions}
-        onChange={() => setCreateSubscriptions(!createSubscriptions)}
-      />
-      <label for="Create Subscriptions">Create Subscriptions</label>
-      <br />
-      <input
-        type="checkbox"
-        checked={deleteSubscriptions}
-        onChange={() => setDeleteSubscriptions(!deleteSubscriptions)}
-      />
-      <label for="Delete Subscriptions">Delete Subscriptions</label>
-      <br />
-      <input
-        type="checkbox"
-        checked={updateSubscriptions}
-        onChange={() => setUpdateSubscriptions(!updateSubscriptions)}
-      />
-      <label for="Update Subscriptions">Update Subscriptions</label>
-      <br />
-      <input
-        type="checkbox"
-        checked={viewMovies}
-        onChange={() => setViewMovies(!viewMovies)}
-      />
-      <label for="View Movies">View Movies</label>
-      <br />
-      <input
-        type="checkbox"
-        checked={createMovies}
-        onChange={() => setCreateMovies(!createMovies)}
-      />
-      <label for="Create Movies">Create Movies</label>
-      <br />
-      <input
-        type="checkbox"
-        checked={deleteMovies}
-        onChange={() => setDeleteMovies(!deleteMovies)}
-      />
-      <label for="Delete Movies">Delete Movies</label>
-      <br />
-      <input
-        type="checkbox"
-        checked={updateMovies}
-        onChange={() => setUpdateMovies(!updateMovies)}
-      />
-      <label for="Update Movies">Update Movies</label>
-      <br />
-      <br />
-      <button type="submit" onClick={update}>
-        update
-      </button>
-      <button
-        type="submit"
-        onClick={() => props.setVisibleEditUser(!props.visibleEditUser)}
-      >
-        cancel
-      </button>
-    </div>
+      <Box maxWidth="350px">
+        <Card>
+          <Text size="3">
+            <b>First Name:</b>
+            <TextField.Root
+              placeholder="First Name"
+              defaultValue={user.firstName}
+              onInput={(e) => setUser({ ...user, firstName: e.target.value })}
+            ></TextField.Root>
+            <b>Last Name: </b>
+            <TextField.Root
+              placeholder="Last Name"
+              defaultValue={user.lastName}
+              onInput={(e) => setUser({ ...user, lastName: e.target.value })}
+            ></TextField.Root>
+            <b>User Name: </b>
+            <TextField.Root
+              placeholder="User Name"
+              defaultValue={user.userName}
+              onInput={(e) => setUser({ ...user, userName: e.target.value })}
+            ></TextField.Root>
+            <b>Session Time Out (Minutes): </b>
+            <TextField.Root
+              type="number"
+              placeholder="Session Time Out"
+              defaultValue={user.sessionTimeOut}
+              onInput={(e) =>
+                setUser({ ...user, sessionTimeOut: e.target.value })
+              }
+            ></TextField.Root>
+            <b>Created data: </b> <br /> {user.createdDate} <br />
+            <b>Permissions: </b>
+          </Text>
+
+          <CheckboxGroup.Root>
+            <CheckboxGroup.Item
+              checked={viewSubscriptions}
+              onClick={() => setViewSubscriptions(!viewSubscriptions)}
+              value="viewSubscriptions"
+            >
+              View Subscriptions
+            </CheckboxGroup.Item>
+            <CheckboxGroup.Item
+              checked={createSubscriptions}
+              onClick={() => setCreateSubscriptions(!createSubscriptions)}
+              value="createSubscriptions"
+            >
+              Create Subscriptions
+            </CheckboxGroup.Item>
+            <CheckboxGroup.Item
+              checked={deleteSubscriptions}
+              onClick={() => setDeleteSubscriptions(!deleteSubscriptions)}
+              value="deleteSubscriptions"
+            >
+              Delete Subscriptions
+            </CheckboxGroup.Item>
+            <CheckboxGroup.Item
+              checked={updateSubscriptions}
+              onClick={() => setUpdateSubscriptions(!updateSubscriptions)}
+              value="updateSubscriptions"
+            >
+              Update Subscriptions
+            </CheckboxGroup.Item>
+            <CheckboxGroup.Item
+              checked={viewMovies}
+              onClick={() => setViewMovies(!viewMovies)}
+              value="viewMovies"
+            >
+              View Movies
+            </CheckboxGroup.Item>
+            <CheckboxGroup.Item
+              checked={createMovies}
+              onClick={() => setCreateMovies(!createMovies)}
+              value="createMovies"
+            >
+              Create Movies
+            </CheckboxGroup.Item>
+            <CheckboxGroup.Item
+              checked={deleteMovies}
+              onClick={() => setDeleteMovies(!deleteMovies)}
+              value="deleteMovies"
+            >
+              Delete Movies
+            </CheckboxGroup.Item>
+            <CheckboxGroup.Item
+              checked={updateMovies}
+              onClick={() => setUpdateMovies(!updateMovies)}
+              value="updateMovies"
+            >
+              Update Movies
+            </CheckboxGroup.Item>
+          </CheckboxGroup.Root>
+          <Flex gap="1" mt="2">
+            <Button type="submit" onClick={update}>
+              update
+            </Button>
+            <Button type="submit" onClick={() => navigate(`/manageUsers`)}>
+              cancel
+            </Button>
+          </Flex>
+        </Card>
+      </Box>
+    </>
   );
 }
 

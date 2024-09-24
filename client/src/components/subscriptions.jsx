@@ -1,96 +1,72 @@
+import { Button, Flex } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
-import AllMembers from "./allMembers";
+import { useSelector } from "react-redux";
 import AddMember from "./addMember";
-import EditMember from "./editMember";
-import { useDispatch, useSelector } from "react-redux";
+import AllMembers from "./allMembers";
+import { useParams } from "react-router-dom";
 
-const urlMembers = "http://localhost:4000/members";
+const userId = localStorage.getItem("userOnline");
 
 function Subscriptions() {
-  const userOnline = useSelector((state) => state.userOnline);
-
   const [visibleAddMemberButton, setVisibleAddMemberButton] = useState(true);
-  const [visibleAllMembersButton, setVisibleAllMembersButton] = useState(true);
   const [visibleAllMembers, setVisibleAllMembers] = useState(true);
-  const [visibleAddMember, setVisibleAddMember] = useState(true);
-  const [visibleEditMember, setVisibleEditMember] = useState(true);
+  const [visibleAddMember, setVisibleAddMember] = useState(false);
 
-  const accessToken = sessionStorage["accessToken"];
+  const users = useSelector((state) => state.users);
+  const memberId = useParams();
 
-  const dispatch = useDispatch();
+  const userOnline = users.find((user) => {
+    return user.id === userId;
+  });
 
   useEffect(() => {
     const fetchData = async () => {
-      if (userOnline != 'undefined') {
-        userOnline.permissions.forEach((permission) => {
+      if (userOnline != "undefined") {
+        userOnline?.permissions.forEach((permission) => {
           if (permission === "Create Subscriptions")
             setVisibleAddMemberButton(false);
-          if (permission === "View Subscriptions")
-            setVisibleAllMembersButton(false);
         });
       }
-
-      const resp = await fetch(urlMembers, {
-        method: "GET",
-        headers: {
-          "access-token": accessToken,
-        },
-      });
-
-      const data = await resp.json();
-
-      dispatch({ type: "Laod_Members", payload: data.members });
     };
     fetchData();
-  }, [visibleAllMembers, visibleAddMember, visibleEditMember]);
+  }, [userOnline]);
 
   return (
-    <div>
+    <>
       <h3>Subscriptions</h3>
 
-      <div hidden={!visibleEditMember}>
-        <button
-          hidden={visibleAllMembersButton}
+      <Flex gap="1" mb="3">
+        <Button
           onClick={() => {
             setVisibleAllMembers(!visibleAllMembers);
-            if (!visibleAddMember) setVisibleAddMember(!visibleAddMember);
+            if (visibleAddMember) setVisibleAddMember(!visibleAddMember);
           }}
         >
           All Members
-        </button>
-        <button
-          hidden={visibleAddMemberButton}
-          onClick={() => {
-            setVisibleAddMember(!visibleAddMember);
-            if (!visibleAllMembers) setVisibleAllMembers(!visibleAllMembers);
-          }}
-        >
-          Add Member
-        </button>
-
-        <div hidden={visibleAllMembers}>
-          <AllMembers
-            setVisibleEditMember={setVisibleEditMember}
-            visibleEditMember={visibleEditMember}
-            setVisibleAllMembers={setVisibleAllMembers}
-          />
+        </Button>
+        <div hidden={visibleAddMemberButton}>
+          <Button
+            onClick={() => {
+              setVisibleAddMember(!visibleAddMember);
+              if (visibleAllMembers) setVisibleAllMembers(!visibleAllMembers);
+            }}
+          >
+            Add Member
+          </Button>
         </div>
-        <div hidden={visibleAddMember}>
-          <AddMember
-            setVisibleAddMember={setVisibleAddMember}
-            visibleAddMember={visibleAddMember}
-            setVisibleAllMembers={setVisibleAllMembers}
-            visibleAllMembers={visibleAllMembers}
-          />
-        </div>
-      </div>
-      <div hidden={visibleEditMember}>
-        <EditMember
-          setVisibleEditMember={setVisibleEditMember}
-          visibleEditMember={visibleEditMember}
+      </Flex>
+      {visibleAllMembers && (
+        <AllMembers memberId={memberId} />
+      )}
+      {visibleAddMember && (
+        <AddMember
+          setVisibleAddMember={setVisibleAddMember}
+          visibleAddMember={visibleAddMember}
+          setVisibleAllMembers={setVisibleAllMembers}
+          visibleAllMembers={visibleAllMembers}
         />
-      </div>
-    </div>
+      )}
+    </>
   );
 }
 

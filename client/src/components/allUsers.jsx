@@ -1,19 +1,13 @@
 import { useSelector } from "react-redux";
 import User from "./user";
 
-function AllUsers(props) {
+function AllUsers() {
   const users = useSelector((state) => state.users);
 
   return (
     <div>
-      {users.map((user) => (
-        <User
-          user={user}
-          key={user.id}
-          setVisibleEditUser={props.setVisibleEditUser}
-          visibleEditUser={props.visibleEditUser}
-          setVisibleAllUsers={props.setVisibleAllUsers}
-        />
+      {users.slice(1).map((user) => (
+        <User user={user} key={user.id} />
       ))}
     </div>
   );

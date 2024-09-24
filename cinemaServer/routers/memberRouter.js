@@ -6,7 +6,7 @@ const memberBLL = require("../DAL/membersWS");
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", checkToken, async (req, res) => {
   try {
     const members = await memberBLL.getAllMembers();
     const data = { ...req.body.data, members };

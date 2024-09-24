@@ -1,11 +1,21 @@
+import { Box, Button, Card, Flex, Text, TextField } from "@radix-ui/themes";
 import { useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 
-function editMovie(props) {
-  const movie = useSelector((state) => state.movie);
+const urlMovies = "http://localhost:4000/movies";
+
+function editMovie() {
+  const navigate = useNavigate();
+  const movies = useSelector((state) => state.movies);
+  const movieId = useParams();
+
+  const movie = movies.find((movie) => {
+    return movie._id === movieId.movieId;
+  });
 
   const [mov, setMovie] = useState({
-    id: movie._id,
+    id: movie.id,
     name: movie.name,
     genres: movie.genres,
     image: movie.image,
@@ -13,8 +23,6 @@ function editMovie(props) {
   });
 
   const update = async () => {
-    const urlMovies = "http://localhost:4000/movies";
-
     const resp = await fetch(`${urlMovies}/${movie._id}`, {
       method: "PUT",
       headers: {
@@ -23,50 +31,54 @@ function editMovie(props) {
       body: JSON.stringify(mov),
     });
 
-    props.setVisibleEditMovie(!props.visibleEditMovie);
+    window.location.href = "http://localhost:5173/movies";
   };
 
   return (
-    <div>
+    <>
       <h3>Edit Movie: {movie.name}</h3>
-      Name:
-      <input
-        type="text"
-        defaultValue={movie.name}
-        onInput={(e) => setMovie({ ...mov, name: e.target.value })}
-      />
-      <br />
-      Genres:
-      <input
-        type="text"
-        defaultValue={movie.genres}
-        onInput={(e) => setMovie({ ...mov, genres: e.target.value })}
-      />
-      <br />
-      Image url:
-      <input
-        type="text"
-        defaultValue={movie.image}
-        onInput={(e) => setMovie({ ...mov, image: e.target.value })}
-      />
-      <br />
-      Premiered:
-      <input
-        type="text"
-        defaultValue={movie.premiered}
-        onInput={(e) => setMovie({ ...mov, premiered: e.target.value })}
-      />
-      <br />
-      <button type="submit" onClick={update}>
-        update
-      </button>
-      <button
-        type="submit"
-        onClick={() => props.setVisibleEditMovie(!props.visibleEditMovie)}
-      >
-        cancel
-      </button>
-    </div>
+      <Box maxWidth="400px">
+        <Card>
+          <Text size="3">
+            <b>Name: </b>
+            <TextField.Root placeholder="Name" defaultValue={movie.name}>
+              <TextField.Slot
+                onInput={(e) => setMovie({ ...mov, name: e.target.value })}
+              ></TextField.Slot>
+            </TextField.Root>
+            <b>Genres: </b>
+            <TextField.Root placeholder="Genres" defaultValue={movie.genres}>
+              <TextField.Slot
+                onInput={(e) => setMovie({ ...mov, genres: e.target.value })}
+              ></TextField.Slot>
+            </TextField.Root>
+            <b>Image url: </b>
+            <TextField.Root placeholder="Image url" defaultValue={movie.image}>
+              <TextField.Slot
+                onInput={(e) => setMovie({ ...mov, image: e.target.value })}
+              ></TextField.Slot>
+            </TextField.Root>
+            <b>Premiered: </b>
+            <TextField.Root
+              placeholder="Premiered"
+              defaultValue={movie.premiered}
+            >
+              <TextField.Slot
+                onInput={(e) => setMovie({ ...mov, premiered: e.target.value })}
+              ></TextField.Slot>
+            </TextField.Root>
+            <Flex gap="1" mt="2">
+              <Button type="submit" onClick={update}>
+                update
+              </Button>
+              <Button type="submit" onClick={() => navigate("/movies")}>
+                cancel
+              </Button>
+            </Flex>
+          </Text>
+        </Card>
+      </Box>
+    </>
   );
 }
 

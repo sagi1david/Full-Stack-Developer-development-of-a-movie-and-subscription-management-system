@@ -1,48 +1,50 @@
-import { useDispatch } from "react-redux";
+import { Box, Button, Card, Flex, Text } from "@radix-ui/themes";
+import { useNavigate } from "react-router-dom";
 
 function User(props) {
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const deleteUser = async () => {
     const urlUsers = "http://localhost:4000/users";
-
-    props.setVisibleAllUser(true)
 
     const resp = await fetch(`${urlUsers}/${props.user.id}`, {
       method: "DELETE",
     });
 
-    props.setVisibleAllUser(false)
+    navigate("/allUsers");
   };
 
   return (
-    <div>
-      Name: {props.user.firstName} {props.user.lastName}
-      <br />
-      User Name: {props.user.userName}
-      <br />
-      Session time out (Minutes): {props.user.sessionTimeOut}
-      <br />
-      Created data: {props.user.createdDate}
-      <br />
-      Permissions:{" "}
-      {props.user.permissions.map((permission) => {
-        return permission + ", ";
-      })}
-      <br />
-      <br />
-      <button
-        onClick={() => {
-          props.setVisibleEditUser(!props.visibleEditUser);
-          dispatch({ type: "Send_User", payload: props.user });
-        }}
-      >
-        Edit
-      </button>
-      <button onClick={deleteUser}>Delete</button>
-      <br />
-      <br />
-    </div>
+    <Box maxWidth="400px" mb="2">
+      <Card>
+        <Flex gap="3" justify="between">
+          <Text size="3">
+            <b>Name: </b>
+            {props.user.firstName} {props.user.lastName}
+            <br />
+            <b>User Name: </b>
+            {props.user.userName}
+            <br />
+            <b>Session time out (Minutes): </b>
+            {props.user.sessionTimeOut}
+            <br />
+            <b>Created data: </b>
+            {props.user.createdDate}
+            <br />
+            <b>Permissions: </b>
+            {props.user.permissions.join(", ")}
+          </Text>
+          <Flex gap="1">
+            <Button onClick={() => navigate(`/editUser/${props.user.id}`)}>
+              Edit
+            </Button>
+            <Button color="red" onClick={deleteUser}>
+              Delete
+            </Button>
+          </Flex>
+        </Flex>
+      </Card>
+    </Box>
   );
 }
 
